@@ -84,18 +84,7 @@ public class DocumentTypesController : Controller
         }
     }
 
-    private bool CheckExist(int id)
-    {
-        var checkDocumentType = _context.DocumentTypes.Any(e => e.Id == id);
-        if (checkDocumentType == true)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+
 
     [Route("delete/{id}")]
     public async Task<IActionResult> Delete(int id)
@@ -108,6 +97,36 @@ public class DocumentTypesController : Controller
         return View(documentTypeFound);
     }
 
+    [HttpPost("delete/{id}")]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var result = CheckExist(id);
+        if (result == false)
+        {
+            return NotFound();
+        }
+
+        var documentTypeFound = await _context.DocumentTypes.FindAsync(id);
+        if (documentTypeFound == null)
+        {
+            return NotFound();
+        }
+        _context.DocumentTypes.Remove(documentTypeFound);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+    }
+    private bool CheckExist(int id)
+    {
+        var checkDocumentType = _context.DocumentTypes.Any(e => e.Id == id);
+        if (checkDocumentType == true)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 
