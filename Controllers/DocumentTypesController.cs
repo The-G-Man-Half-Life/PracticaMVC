@@ -14,7 +14,7 @@ public class DocumentTypesController : Controller
     private readonly ILogger<DocumentTypesController> _logger;
     private readonly ApplicationDbContext _context;
 
-    public DocumentTypesController(ILogger<DocumentTypesController> logger,ApplicationDbContext context)
+    public DocumentTypesController(ILogger<DocumentTypesController> logger, ApplicationDbContext context)
     {
         _logger = logger;
         _context = context;
@@ -23,7 +23,7 @@ public class DocumentTypesController : Controller
 
     [Route("Index")]
 
-//metodo asincrono
+    //metodo asincrono
     public async Task<IActionResult> Index()
     {
         var allDocumentTypes = await _context.DocumentTypes.ToListAsync();
@@ -38,7 +38,7 @@ public class DocumentTypesController : Controller
     }
 
     [HttpPost("create")]
-    
+
     public async Task<IActionResult> Create(DocumentType documentType)
     {
         if (ModelState.IsValid)
@@ -55,20 +55,62 @@ public class DocumentTypesController : Controller
 
     }
 
-    [Route("Edit")]
+    [Route("edit/{id}")]
     public async Task<IActionResult> Edit(int id)
     {
-        var documnetTypeFound = await _context.DocumentTypes.FindAsync(id);
-        if(documnetTypeFound == null)
+        var documentTypeFound = await _context.DocumentTypes.FindAsync(id);
+        return View(documentTypeFound);
+    }
+
+    [HttpPost("edit/{id}")]
+    public async Task<IActionResult> Edit(int id, DocumentType documentType)
+    {
+        var result = CheckExist(id);
+        if (result == false)
         {
             return NotFound();
         }
+
+        if (ModelState.IsValid)
+        {
+            _context.Update(documentType);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        else
+        {
+            _logger.LogError("El modelo no es valido");
+            return View(documentType);
+        }
     }
-    
+
+    private bool CheckExist(int id)
+    {
+        var checkDocumentType = _context.DocumentTypes.Any(e => e.Id == id);
+        if (checkDocumentType == true)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    [Route("delete/{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var documentTypeFound = await _context.DocumentTypes.FindAsync(id);
+        if(documentTypeFound == null)
+        {
+            return View("Error");
+        }
+        return View(documentTypeFound);
+    }
 
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    
+
     [Route("Error")]
     public IActionResult Error()
     {
