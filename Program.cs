@@ -18,7 +18,7 @@ builder.Services.AddControllersWithViews();
 
 //Configure the database connection
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-options.UseMySql(builder.Configuration.GetConnectionString("MySqlConnection"),
+options.UseMySql(MySqlConnection,
 ServerVersion.Parse("8.0.20-mysql")));
 
 var app = builder.Build();
